@@ -1,15 +1,23 @@
-@RestController
-@RequestMapping("api/v1/client")
-public class ClientController {
-    private final ClientService clientService;
+#!groovy
+// Run docker build
+properties([disableConcurrentBuilds()])
 
-    @Autowired
-    public ClientController(ClientService clientService) {
-        this.clientService = clientService;
+pipeline {
+    agent { 
+        label 'master'
+        }
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
+        timestamps()
     }
-
-    @GetMapping()
-    public String sayHello(){
-        return clientService.sayHello();
+    stages {
+        stage("create docker image") {
+            steps {
+                echo " ============== start building image =================="
+                dir ('docker/toolbox') {
+                	sh 'docker build .'
+                }
+            }
+        }  
     }
 }
