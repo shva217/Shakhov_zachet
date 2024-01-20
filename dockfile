@@ -1,21 +1,15 @@
-properties([disableConcurrentBuilds()])
+@RestController
+@RequestMapping("api/v1/client")
+public class ClientController {
+    private final ClientService clientService;
 
-pipeline {
-    agent { 
-        label 'master'
-        }
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
-        timestamps()
+    @Autowired
+    public ClientController(ClientService clientService) {
+        this.clientService = clientService;
     }
-    stages {
-        stage("create docker image") {
-            steps {
-                echo " ============== start building image =================="
-                dir ('docker') {
-                	sh 'docker build .'
-                }
-            }
-        }  
+
+    @GetMapping()
+    public String sayHello(){
+        return clientService.sayHello();
     }
 }
