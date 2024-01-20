@@ -1,5 +1,13 @@
-FROM python:3.7.2-alpine3.8
-LABEL maintainer="jeffmshale@gmail.com"
-ENV ADMIN="jeff"
-RUN apk update && apk upgrade && apk add bash
-CMD bash
+FROM eclipse-temurin:17-jdk-alpine as builder
+WORKDIR /opt/app
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
+RUN ./mvnw dependency:go-offline
+COPY ./src ./src
+RUN ./mvnw clean install
+
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /opt/app
+COPY --from=builder /opt/app/target/*.jar /opt/app/*.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/opt/app/*.jar"]
